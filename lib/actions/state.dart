@@ -3,7 +3,7 @@ part of '../haste.dart';
 class StateAction<T> extends HasteAction<T> {
   T _value;
 
-  StateAction(this._value, {super.key});
+  StateAction(this._value);
 
   T get value {
     return _value;
@@ -19,10 +19,8 @@ class StateAction<T> extends HasteAction<T> {
 }
 
 class StateActionBuilder extends HasteActionBuilder {
-  StateActionBuilder(super.element);
-
   StateAction<S> call<S>(S initialValue, {key}) {
-    return _register(StateAction(initialValue, key: key));
+    return _rebuild(key, () => StateAction(initialValue));
   }
 
   StateAction<S> init<S>(S Function() initializer, {key}) {

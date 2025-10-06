@@ -3,7 +3,7 @@ part of '../haste.dart';
 class DisposeAction<T> extends HasteAction<T> {
   void Function() _dispose;
 
-  DisposeAction(this._dispose, {super.key});
+  DisposeAction(this._dispose);
 
   @override
   dispose() {
@@ -12,10 +12,8 @@ class DisposeAction<T> extends HasteAction<T> {
 }
 
 class DisposeActionBuilder extends HasteActionBuilder {
-  DisposeActionBuilder(super.element);
-
   void call(void Function() dispose) {
-    final action = _register(DisposeAction(dispose));
+    final action = _rebuild(null, () => DisposeAction(dispose));
     action._dispose = dispose;
   }
 }

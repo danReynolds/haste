@@ -5,46 +5,50 @@ part 'actions/memo.dart';
 part 'actions/dispose.dart';
 
 abstract class HasteAction<T> {
-  final Key? _key;
+  late final Key? _key;
   late final HasteElement _element;
-
-  HasteAction({Key? key}) : _key = key;
 
   void dispose() {}
 }
 
 abstract class HasteActionBuilder<T> {
-  final HasteElement _element;
-
-  HasteActionBuilder(this._element);
-
-  S _register<S extends HasteAction>(S action) {
-    return _element._registerAction(action);
+  S _rebuild<S extends HasteAction>(Key? key, S Function() actionBuilder) {
+    return HasteElement._current!._rebuildAction(key, actionBuilder);
   }
 }
 
 class HasteElement extends StatelessElement {
-  int _actionIndex = 0;
-
+  /// The list of actions registered in this element.
   List<HasteAction> _actions = [];
 
   HasteElement(super.widget);
 
-  T _registerAction<T extends HasteAction>(T action) {
-    final currentIndex = _actionIndex++;
+  /// The current element being built.
+  static HasteElement? _current;
 
-    if (_actions.elementAtOrNull(currentIndex) case T currentAction
-        when currentAction._key == action._key) {
+  /// The current action index being processed by the current element.
+  static int _currentActionIndex = 0;
+
+  T _rebuildAction<T extends HasteAction>(
+    Key? key,
+    T Function() actionBuilder,
+  ) {
+    final actionIndex = _currentActionIndex++;
+
+    if (_actions.elementAtOrNull(actionIndex) case T currentAction
+        when currentAction._key == key) {
       return currentAction;
     }
 
-    for (int i = currentIndex; i < _actions.length; i++) {
+    for (int i = actionIndex; i < _actions.length; i++) {
       final action = _actions[i];
       action.dispose();
     }
 
+    final action = actionBuilder();
+    action._key = key;
     action._element = this;
-    _actions = _actions.sublist(0, currentIndex);
+    _actions = _actions.sublist(0, actionIndex);
     _actions.add(action);
 
     return action;
@@ -52,15 +56,14 @@ class HasteElement extends StatelessElement {
 
   @override
   Widget build() {
-    final child = super.build();
-    _actionIndex = 0;
-    return child;
-  }
+    HasteElement._current = this;
 
-  @override
-  void update(covariant Haste newWidget) {
-    newWidget._element = this;
-    super.update(newWidget);
+    final child = super.build();
+
+    _currentActionIndex = 0;
+    HasteElement._current = null;
+
+    return child;
   }
 
   @override
@@ -70,15 +73,17 @@ class HasteElement extends StatelessElement {
     }
     super.unmount();
   }
+
+  static final state = StateActionBuilder();
+  static final memo = MemoActionBuilder();
+  static final dispose = DisposeActionBuilder();
 }
 
 mixin Haste on StatelessWidget {
-  late HasteElement _element;
-
   @override
-  HasteElement createElement() => _element = HasteElement(this);
+  HasteElement createElement() => HasteElement(this);
 
-  late final state = StateActionBuilder(_element);
-  late final memo = MemoActionBuilder(_element);
-  late final dispose = DisposeActionBuilder(_element);
+  final state = HasteElement.state;
+  final memo = HasteElement.memo;
+  final dispose = HasteElement.dispose;
 }
