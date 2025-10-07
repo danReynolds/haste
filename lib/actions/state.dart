@@ -19,11 +19,13 @@ class StateAction<T> extends HasteAction<T> {
 }
 
 class StateActionBuilder extends HasteActionBuilder {
-  StateAction<S> call<S>(S initialValue, {key}) {
+  const StateActionBuilder();
+
+  StateAction<S> call<S>(S initialValue, {Key? key}) {
     return _rebuild(key, () => StateAction(initialValue));
   }
 
-  StateAction<S> init<S>(S Function() initializer, {key}) {
-    return call(initializer(), key: key);
+  StateAction<S> init<S>(S Function() initializer, {Key? key}) {
+    return _rebuild(key, () => StateAction(initializer()));
   }
 }
