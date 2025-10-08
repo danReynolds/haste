@@ -1,7 +1,7 @@
 name: haste_loon
-description: Haste extensions for the loon library.
+description: Haste extensions for the Loon library.
 version: 0.0.1
-homepage:
+homepage: https://github.com/danReynolds/haste/tree/main/packages/haste_loon
 
 resolution: workspace
 

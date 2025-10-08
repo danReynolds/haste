@@ -1,7 +1,7 @@
 name: haste_computables
 description: Haste extensions for the computables library.
 version: 0.0.1
-homepage:
+homepage: https://github.com/danReynolds/haste/tree/main/packages/haste_computables
 
 environment:
   sdk: ^3.9.0
