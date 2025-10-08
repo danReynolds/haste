@@ -22,7 +22,7 @@ class LoadUserDemo extends StatelessWidget with Haste {
 
   @override
   Widget build(BuildContext context) {
-    final key = state.init(() => UniqueKey());
+    final (key, setKey) = state.init(() => UniqueKey());
 
     final userSnap = future.init(
       // Initialize the load user future on first build.
@@ -31,7 +31,7 @@ class LoadUserDemo extends StatelessWidget with Haste {
         () => UserModel((randomNames..shuffle()).first),
       ),
       // The future will be reinitialized whenever the key changes.
-      key: key.value,
+      key: key,
     );
 
     return Center(
@@ -48,7 +48,7 @@ class LoadUserDemo extends StatelessWidget with Haste {
                 Text('User: ${userSnap.data!.name}'),
                 ElevatedButton(
                   onPressed: () {
-                    key.value = UniqueKey();
+                    setKey(UniqueKey());
                   },
                   child: Text('Fetch new user'),
                 ),

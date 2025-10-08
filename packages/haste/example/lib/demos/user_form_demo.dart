@@ -12,7 +12,7 @@ class UserFormDemo extends StatelessWidget with Haste {
 
   @override
   Widget build(BuildContext context) {
-    final users = state(<UserModel>[]);
+    final (users, setUsers) = state(<UserModel>[]);
 
     return Column(
       children: [
@@ -21,11 +21,11 @@ class UserFormDemo extends StatelessWidget with Haste {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              '${users.value.length} users',
+              '${users.length} users',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             Column(
-              children: users.value
+              children: users
                   .map(
                     (user) => Row(
                       spacing: 12,
@@ -37,9 +37,7 @@ class UserFormDemo extends StatelessWidget with Haste {
                         IconButton(
                           icon: Icon(Icons.delete),
                           onPressed: () {
-                            users.value = users.value
-                                .where((u) => u != user)
-                                .toList();
+                            setUsers(users.where((u) => u != user).toList());
                           },
                         ),
                       ],
@@ -59,7 +57,7 @@ class UserFormDemo extends StatelessWidget with Haste {
                 builder: (context) {
                   return UserForm(
                     onSubmit: (user) {
-                      users.value = [...users.value, user];
+                      setUsers([...users, user]);
                     },
                   );
                 },

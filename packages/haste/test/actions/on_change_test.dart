@@ -8,15 +8,16 @@ void main() {
       WidgetTester tester,
     ) async {
       int changeCount = 0;
-      late StateAction<int> state;
+      late void Function(int) updater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(0);
+            final (count, setCount) = actions.state(0);
+            updater = setCount;
             actions.onChange(() {
               changeCount++;
-            }, key: ValueKey(state.value));
+            }, key: ValueKey(count));
             return Container();
           },
         ),
@@ -24,13 +25,13 @@ void main() {
 
       expect(changeCount, 0);
 
-      state.value = 1;
+      updater(1);
 
       await tester.pump();
 
       expect(changeCount, 1);
 
-      state.value = 5;
+      updater(5);
 
       await tester.pump();
 

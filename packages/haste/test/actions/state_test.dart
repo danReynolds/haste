@@ -8,13 +8,12 @@ void main() {
       WidgetTester tester,
     ) async {
       late int value;
-      late StateAction<int> state;
+      late void Function(int) updater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(0);
-            value = state.value;
+            (value, updater) = actions.state(0);
             return Container();
           },
         ),
@@ -22,7 +21,7 @@ void main() {
 
       expect(value, 0);
 
-      state.value = 1;
+      updater(1);
 
       await tester.pump();
 
@@ -32,13 +31,13 @@ void main() {
     testWidgets('A memoized initializer is called once', (
       WidgetTester tester,
     ) async {
-      late StateAction<int> state;
+      late void Function(int) updater;
       int initCalls = 0;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state.init(() {
+            (_, updater) = actions.state.init(() {
               initCalls++;
               return 0;
             });
@@ -49,7 +48,7 @@ void main() {
 
       expect(initCalls, 1);
 
-      state.value = 1;
+      updater(1);
 
       await tester.pump();
 
@@ -59,22 +58,23 @@ void main() {
     testWidgets('State is reinitialized on key changes', (
       WidgetTester tester,
     ) async {
-      late StateAction<Key?> key;
-      late StateAction<int> state;
+      late Key? key;
+      late void Function(Key?) keyUpdater;
 
       late int value;
+      late void Function(int) valueUpdater;
+
       int initCalls = 0;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            key = actions.state(null);
+            (key, keyUpdater) = actions.state<Key?>(null);
 
-            state = actions.state.init(() {
+            (value, valueUpdater) = actions.state.init(() {
               initCalls++;
               return 0;
-            }, key: key.value);
-            value = state.value;
+            }, key: key);
 
             return Container();
           },
@@ -84,14 +84,14 @@ void main() {
       expect(value, 0);
       expect(initCalls, 1);
 
-      state.value = 1;
+      valueUpdater(1);
 
       await tester.pump();
 
       expect(value, 1);
       expect(initCalls, 1);
 
-      key.value = UniqueKey();
+      keyUpdater(UniqueKey());
 
       await tester.pump();
 

@@ -15,7 +15,7 @@ class DemoApp extends StatelessWidget with Haste {
 
   @override
   Widget build(BuildContext context) {
-    final selectedDemo = state(Demos.userForm);
+    final (selectedDemo, setSelectedDemo) = state(Demos.userForm);
 
     return MaterialApp(
       title: 'Haste Demos',
@@ -48,9 +48,9 @@ class DemoApp extends StatelessWidget with Haste {
               ...Demos.values.map(
                 (demo) => ListTile(
                   title: Text(demo.name),
-                  selected: selectedDemo.value == demo,
+                  selected: selectedDemo == demo,
                   onTap: () {
-                    selectedDemo.value = demo;
+                    setSelectedDemo(demo);
                   },
                 ),
               ),
@@ -59,7 +59,7 @@ class DemoApp extends StatelessWidget with Haste {
         ),
         body: Container(
           padding: EdgeInsets.all(24),
-          child: switch (selectedDemo.value) {
+          child: switch (selectedDemo) {
             Demos.userForm => UserFormDemo(),
             Demos.loadUser => LoadUserDemo(),
             Demos.footballScore => FootballScoreDemo(),

@@ -40,14 +40,14 @@ void main() {
     testWidgets('A computable initializer is called once', (
       WidgetTester tester,
     ) async {
-      late StateAction<int> state;
       late int value;
+      late void Function(int) countUpdater;
       int initCalls = 0;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(0);
+            (_, countUpdater) = actions.state(0);
             value = actions.compute.init(() {
               initCalls++;
               return Computable(1);
@@ -60,7 +60,7 @@ void main() {
       expect(initCalls, 1);
       expect(value, 1);
 
-      state.value = 1;
+      countUpdater(1);
 
       await tester.pump();
 
@@ -71,13 +71,16 @@ void main() {
       WidgetTester tester,
     ) async {
       late int value;
-      late StateAction<Computable<int>> state;
+      late void Function(Computable<int>) computableUpdater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state.init(() => Computable(1));
-            value = actions.compute(state.value);
+            final (computable, setComputable) = actions.state.init(
+              () => Computable(1),
+            );
+            computableUpdater = setComputable;
+            value = actions.compute(computable);
             return Container();
           },
         ),
@@ -85,7 +88,7 @@ void main() {
 
       expect(value, 1);
 
-      state.value = Computable(3);
+      computableUpdater(Computable(3));
 
       await tester.pump();
 

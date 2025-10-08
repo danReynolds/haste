@@ -1,5 +1,7 @@
 part of '../haste.dart';
 
+typedef StateActionRecord<S> = (S value, void Function(S newValue) update);
+
 class StateAction<T> extends HasteAction<T> {
   T _value;
 
@@ -21,11 +23,12 @@ class StateAction<T> extends HasteAction<T> {
 class StateActionBuilder extends HasteActionBuilder {
   const StateActionBuilder();
 
-  StateAction<S> init<S>(S Function() initializer, {Key? key}) {
-    return rebuild(key, () => StateAction(initializer()));
+  StateActionRecord<S> init<S>(S Function() initializer, {Key? key}) {
+    final action = rebuild(key, () => StateAction(initializer()));
+    return (action._value, (newValue) => action.value = newValue);
   }
 
-  StateAction<S> call<S>(S initialValue, {Key? key}) {
+  StateActionRecord<S> call<S>(S initialValue, {Key? key}) {
     return init(() => initialValue, key: key);
   }
 }

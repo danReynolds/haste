@@ -7,26 +7,27 @@ void main() {
     WidgetTester tester,
   ) async {
     bool disposed = false;
-    late StateAction<bool> state;
-    late StateAction<int> state2;
 
-    late int value2;
+    late void Function(bool) flagUpdater;
+    late void Function(int) countUpdater;
+
+    late int count;
 
     await tester.pumpWidget(
       HasteBuilder(
         builder: (context, actions) {
-          state = actions.state(false);
+          final (flag, setFlag) = actions.state(false);
+          flagUpdater = setFlag;
 
           // Changing the value of state will alter the action type of the action at this index,
           // triggering a disposal of all successive actions.
-          if (state.value) {
+          if (flag) {
             actions.init(() => {});
           } else {
             actions.memo(() => 0);
           }
 
-          state2 = actions.state(0);
-          value2 = state2.value;
+          (count, countUpdater) = actions.state(0);
           actions.dispose(() => disposed = true);
 
           return Container();
@@ -35,23 +36,23 @@ void main() {
     );
 
     expect(disposed, false);
-    expect(value2, 0);
+    expect(count, 0);
 
-    state2.value = 1;
+    countUpdater(1);
 
     await tester.pump();
 
     expect(disposed, false);
-    expect(value2, 1);
+    expect(count, 1);
 
-    // Updating this state invalidates all successive actions.
-    state.value = true;
+    // Updating this flag invalidates all successive actions.
+    flagUpdater(true);
 
     await tester.pump();
 
     // The subsequent state and dispose actions should now have been disposed and reinitialized.
     expect(disposed, true);
-    expect(value2, 0);
+    expect(count, 0);
   });
 
   testWidgets("Successive actions are preserved when an action's key changes", (
@@ -59,22 +60,19 @@ void main() {
   ) async {
     bool disposed = false;
 
-    late StateAction<Key> state;
-    late StateAction<int> state2;
-    late StateAction<int> state3;
-
-    late int value2;
-    late int value3;
+    late Key key;
+    late int count;
+    late int count2;
+    late void Function(Key) keyUpdater;
+    late void Function(int) countUpdater;
+    late void Function(int) countUpdater2;
 
     await tester.pumpWidget(
       HasteBuilder(
         builder: (context, actions) {
-          state = actions.state.init(() => UniqueKey());
-          state2 = actions.state(0, key: state.value);
-          state3 = actions.state(0);
-
-          value2 = state2.value;
-          value3 = state3.value;
+          (key, keyUpdater) = actions.state.init(() => UniqueKey());
+          (count, countUpdater) = actions.state(0, key: key);
+          (count2, countUpdater2) = actions.state(0);
 
           actions.dispose(() => disposed = true);
 
@@ -83,27 +81,27 @@ void main() {
       ),
     );
 
-    expect(value2, 0);
-    expect(value3, 0);
+    expect(count, 0);
+    expect(count2, 0);
     expect(disposed, false);
 
-    state2.value = 1;
-    state3.value = 1;
+    countUpdater(1);
+    countUpdater2(1);
 
     await tester.pump();
 
-    expect(value2, 1);
-    expect(value3, 1);
+    expect(count, 1);
+    expect(count2, 1);
     expect(disposed, false);
 
-    state.value = UniqueKey();
+    keyUpdater(UniqueKey());
 
     await tester.pump();
 
     // Changing the key of the first state invalidates the key of state2, which causes state2 to be reinitialized
     // but should not dispose or reinitialize state3 and the subsequent dispose action.
-    expect(value2, 0);
-    expect(value3, 1);
+    expect(count, 0);
+    expect(count2, 1);
     expect(disposed, false);
   });
 }

@@ -148,13 +148,16 @@ void main() {
 
     testWidgets('Resets when the stream changes', (WidgetTester tester) async {
       late AsyncSnapshot<int> snap;
-      late StateAction<Stream<int>> state;
+      late void Function(Stream<int>) updater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state.init(() => Stream.value(2));
-            snap = actions.stream(state.value);
+            final (stream, setStream) = actions.state.init(
+              () => Stream.value(2),
+            );
+            updater = setStream;
+            snap = actions.stream(stream);
             return Container();
           },
         ),
@@ -168,7 +171,7 @@ void main() {
       expect(snap.connectionState, ConnectionState.done);
       expect(snap.data, 2);
 
-      state.value = Stream.value(3);
+      updater(Stream.value(3));
 
       await tester.pump();
 
@@ -185,17 +188,18 @@ void main() {
       WidgetTester tester,
     ) async {
       late AsyncSnapshot<int> snap;
-      late StateAction<Stream<int>> state;
+      late void Function(Stream<int>) updater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state.init(
+            final (stream, setStream) = actions.state.init(
               () => Stream.fromFuture(
                 Future.delayed(Duration(milliseconds: 100), () => 2),
               ),
             );
-            snap = actions.stream(state.value);
+            updater = setStream;
+            snap = actions.stream(stream);
             return Container();
           },
         ),
@@ -210,7 +214,7 @@ void main() {
       expect(snap.connectionState, ConnectionState.none);
       expect(snap.data, null);
 
-      state.value = Stream.value(3);
+      updater(Stream.value(3));
 
       await tester.pump();
 

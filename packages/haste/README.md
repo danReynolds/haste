@@ -29,16 +29,10 @@ class MyFormState extends State<MyForm> {
     return Column(
       children: [
         TextField(controller: _controller, hintText: 'Name'),
-        AgePicker(initialValue: 0, onPick: (updatedAge) {
-          setState(() {
-            _age = updatedAge;
-          })
-        }),
+        AgePicker(initialValue: 0, onPick: (newAge) => setState(() => _age = newAge)),
         TextButton(
           child: Text('Submit'),
-          onPressed: () {
-            widget.submit(age: _age, name: _controller.text);
-          },
+          onPressed: () => widget.submit(age: _age, name: _controller.text),
         ),
       ]
     )
@@ -59,20 +53,16 @@ class MyForm extends StatelessWidget with Haste {
 
   @override
   build(context) {
+    final (age, setAge) = state(0);
     final controller = memo(() => TextEditingController());
-    final age = state(0);
 
     return Column(
       children: [
         TextField(controller: _controller, hintText: 'Name'),
-        AgePicker(initialValue: 0, onPick: (updatedAge) {
-          age.value = updatedAge;
-        }),
+        AgePicker(initialValue: 0, onPick: (newAge) => setAge(newAge)),
         TextButton(
           child: Text('Submit'),
-          onPressed: () {
-            widget.submit(age: age.value, name: _controller.text);
-          },
+          onPressed: () => widget.submit(age: age, name: _controller.text),
         ),
       ]
     )

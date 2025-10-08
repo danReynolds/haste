@@ -16,12 +16,12 @@ void main() {
       WidgetTester tester,
     ) async {
       bool disposed = false;
-      late StateAction<int> state;
+      late void Function(int) updater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(0);
+            updater = actions.state(0).$2;
             actions.dispose(() => disposed = true);
             return Container();
           },
@@ -30,7 +30,7 @@ void main() {
 
       expect(disposed, false);
 
-      state.value = 1;
+      updater(1);
 
       await tester.pump();
 
@@ -47,13 +47,14 @@ void main() {
       Disposable disposable1 = Disposable();
       Disposable disposable2 = Disposable();
 
-      late StateAction<Disposable> state;
+      late void Function(Disposable) updater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(disposable1);
-            actions.dispose(() => state.value.dispose());
+            final (disposable, setDisposable) = actions.state(disposable1);
+            updater = setDisposable;
+            actions.dispose(() => disposable.dispose());
             return Container();
           },
         ),
@@ -62,7 +63,7 @@ void main() {
       expect(disposable1.disposed, false);
       expect(disposable2.disposed, false);
 
-      state.value = disposable2;
+      updater(disposable2);
 
       await tester.pump();
 

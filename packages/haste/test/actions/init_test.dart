@@ -8,12 +8,13 @@ void main() {
       WidgetTester tester,
     ) async {
       int callCount = 0;
-      late StateAction<int> state;
+      late void Function(int) updater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(0);
+            final (count, setCount) = actions.state(0);
+            updater = setCount;
             actions.init(() {
               callCount++;
             });
@@ -24,7 +25,7 @@ void main() {
 
       expect(callCount, 1);
 
-      state.value = 1;
+      updater(1);
 
       await tester.pump();
 

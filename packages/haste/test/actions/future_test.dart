@@ -138,13 +138,16 @@ void main() {
 
     testWidgets('Resets when the future changes', (WidgetTester tester) async {
       late AsyncSnapshot<int> snap;
-      late StateAction<Future<int>> state;
+      late void Function(Future<int>) updater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state.init(() => Future.value(2));
-            snap = actions.future(state.value);
+            final (future, setFuture) = actions.state.init(
+              () => Future.value(2),
+            );
+            updater = setFuture;
+            snap = actions.future(future);
             return Container();
           },
         ),
@@ -158,7 +161,7 @@ void main() {
       expect(snap.connectionState, ConnectionState.done);
       expect(snap.data, 2);
 
-      state.value = Future.value(3);
+      updater(Future.value(3));
 
       await tester.pump();
 
@@ -175,15 +178,16 @@ void main() {
       WidgetTester tester,
     ) async {
       late AsyncSnapshot<int> snap;
-      late StateAction<Future<int>> state;
+      late void Function(Future<int>) updater;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state.init(
+            final (future, setFuture) = actions.state.init(
               () => Future.delayed(Duration(milliseconds: 100), () => 2),
             );
-            snap = actions.future(state.value);
+            updater = setFuture;
+            snap = actions.future(future);
             return Container();
           },
         ),
@@ -198,7 +202,7 @@ void main() {
       expect(snap.connectionState, ConnectionState.none);
       expect(snap.data, null);
 
-      state.value = Future.value(3);
+      updater(Future.value(3));
 
       await tester.pump();
 

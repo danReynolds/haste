@@ -40,13 +40,13 @@ void main() {
     testWidgets('A document initializer is called once', (
       WidgetTester tester,
     ) async {
-      late StateAction<int> state;
+      late void Function(int) countUpdater;
       int initCalls = 0;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(0);
+            (_, countUpdater) = actions.state(0);
             actions.doc.init(() {
               initCalls++;
               return Loon.collection<int>('users').doc('1');
@@ -58,7 +58,7 @@ void main() {
 
       expect(initCalls, 1);
 
-      state.value = 1;
+      countUpdater(1);
 
       await tester.pump();
 
@@ -69,7 +69,7 @@ void main() {
       WidgetTester tester,
     ) async {
       late DocumentSnapshot<int>? value;
-      late StateAction<Document<int>> state;
+      late void Function(Document<int>) docUpdater;
 
       final userDoc = Loon.collection<int>('users').doc('1');
       final userDoc2 = Loon.collection<int>('users').doc('2');
@@ -77,8 +77,9 @@ void main() {
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(userDoc);
-            value = actions.doc(state.value);
+            final (doc, setDoc) = actions.state(userDoc);
+            docUpdater = setDoc;
+            value = actions.doc(doc);
             return Container();
           },
         ),
@@ -92,7 +93,7 @@ void main() {
 
       expect(value, DocumentSnapshot(doc: userDoc, data: 1));
 
-      state.value = userDoc2;
+      docUpdater(userDoc2);
 
       await tester.pump(Duration.zero);
 
@@ -142,13 +143,13 @@ void main() {
     testWidgets('A query initializer is called once', (
       WidgetTester tester,
     ) async {
-      late StateAction<int> state;
+      late void Function(int) counterUpdater;
       int initCalls = 0;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(0);
+            (_, counterUpdater) = actions.state(0);
             actions.query.init(() {
               initCalls++;
               return Loon.collection<int>('users');
@@ -160,7 +161,7 @@ void main() {
 
       expect(initCalls, 1);
 
-      state.value = 1;
+      counterUpdater(1);
 
       await tester.pump();
 
@@ -169,7 +170,7 @@ void main() {
 
     testWidgets('Resets when the query changes', (WidgetTester tester) async {
       late List<DocumentSnapshot<int>> value;
-      late StateAction<Collection<int>> state;
+      late void Function(Collection<int>) collectionUpdater;
 
       final users = Loon.collection<int>('users');
       final friends = Loon.collection<int>('friends');
@@ -180,8 +181,9 @@ void main() {
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(users);
-            value = actions.query(state.value);
+            final (collection, setCollection) = actions.state(users);
+            collectionUpdater = setCollection;
+            value = actions.query(collection);
             return Container();
           },
         ),
@@ -195,7 +197,7 @@ void main() {
 
       expect(value, [DocumentSnapshot(doc: userDoc, data: 1)]);
 
-      state.value = friends;
+      collectionUpdater(friends);
 
       await tester.pump(Duration.zero);
 

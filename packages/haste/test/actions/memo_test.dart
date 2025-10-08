@@ -7,14 +7,15 @@ void main() {
     testWidgets('A memoized initializer is called once', (
       WidgetTester tester,
     ) async {
-      late StateAction<int> state;
+      late void Function(int) updater;
       late int value;
       int initCalls = 0;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            state = actions.state(0);
+            final (count, setCount) = actions.state(0);
+            updater = setCount;
             value = actions.memo(() {
               initCalls++;
               return 0;
@@ -27,7 +28,7 @@ void main() {
       expect(initCalls, 1);
       expect(value, 0);
 
-      state.value = 1;
+      updater(1);
 
       await tester.pump();
 
@@ -37,17 +38,18 @@ void main() {
     testWidgets('Memo is reinitialized on key changes', (
       WidgetTester tester,
     ) async {
-      late StateAction<Key?> key;
+      late void Function(Key?) updater;
       late int memo;
       int initCalls = 0;
 
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            key = actions.state(null);
+            final (key, setKey) = actions.state<Key?>(null);
+            updater = setKey;
             memo = actions.memo(() {
               return ++initCalls;
-            }, key: key.value);
+            }, key: key);
 
             return Container();
           },
@@ -57,7 +59,7 @@ void main() {
       expect(memo, 1);
       expect(initCalls, 1);
 
-      key.value = UniqueKey();
+      updater(UniqueKey());
 
       await tester.pump();
 
