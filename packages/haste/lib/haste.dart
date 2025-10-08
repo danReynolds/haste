@@ -1,6 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/widgets.dart';
+
+export 'widgets/haste_builder.dart';
 
 part 'actions/init.dart';
 part 'actions/state.dart';
@@ -24,13 +25,12 @@ abstract class HasteAction<T> {
 abstract class HasteActionBuilder<T> {
   const HasteActionBuilder();
 
-  S? retrieve<S extends HasteAction>() {
-    return HasteElement._current!._retrieveAction<S>();
-  }
+  HasteElement get _element => HasteElement._current!;
 
-  S rebuild<S extends HasteAction>(Key? key, S Function() actionBuilder) {
-    return HasteElement._current!._rebuildAction(key, actionBuilder);
-  }
+  S? retrieve<S extends HasteAction>() => _element._retrieveAction<S>();
+
+  S rebuild<S extends HasteAction>(Key? key, S Function() actionBuilder) =>
+      _element._rebuildAction(key, actionBuilder);
 }
 
 class HasteElement extends StatelessElement {
@@ -60,12 +60,22 @@ class HasteElement extends StatelessElement {
   ) {
     final actionIndex = _currentActionIndex++;
 
-    if (_actions.elementAtOrNull(actionIndex) case T currentAction
-        when currentAction._key == key) {
-      return currentAction;
+    if (_actions.elementAtOrNull(actionIndex) case T currentAction) {
+      if (currentAction._key == key) {
+        return currentAction;
+      }
+
+      // If the action's type is the same but its key has changed, dispose it and recreate the action.
+      currentAction.dispose();
+      final action = _actions[actionIndex] = actionBuilder();
+      action._key = key;
+      action._element = this;
+
+      return action;
     }
 
-    if (actionIndex != _actions.length) {
+    // If the action's type has changed, then all actions after it are invalidated and disposed.
+    if (actionIndex < _actions.length) {
       for (int i = actionIndex; i < _actions.length; i++) {
         final action = _actions[i];
         action.dispose();
@@ -99,45 +109,25 @@ class HasteElement extends StatelessElement {
     }
     super.unmount();
   }
-
-  static final init = InitActionBuilder();
-  static final state = StateActionBuilder();
-  static final memo = MemoActionBuilder();
-  static final dispose = DisposeActionBuilder();
-  static final future = FutureActionBuilder();
-  static final stream = StreamActionBuilder();
-  static final onChange = OnChangeActionBuilder();
 }
+
+const _init = InitActionBuilder();
+const _state = StateActionBuilder();
+const _memo = MemoActionBuilder();
+const _dispose = DisposeActionBuilder();
+const _future = FutureActionBuilder();
+const _stream = StreamActionBuilder();
+const _onChange = OnChangeActionBuilder();
 
 mixin Haste on StatelessWidget {
   @override
   HasteElement createElement() => HasteElement(this);
 
-  InitActionBuilder get init {
-    return HasteElement.init;
-  }
-
-  StateActionBuilder get state {
-    return HasteElement.state;
-  }
-
-  MemoActionBuilder get memo {
-    return HasteElement.memo;
-  }
-
-  DisposeActionBuilder get dispose {
-    return HasteElement.dispose;
-  }
-
-  FutureActionBuilder get future {
-    return HasteElement.future;
-  }
-
-  StreamActionBuilder get stream {
-    return HasteElement.stream;
-  }
-
-  OnChangeActionBuilder get onChange {
-    return HasteElement.onChange;
-  }
+  InitActionBuilder get init => _init;
+  StateActionBuilder get state => _state;
+  MemoActionBuilder get memo => _memo;
+  DisposeActionBuilder get dispose => _dispose;
+  FutureActionBuilder get future => _future;
+  StreamActionBuilder get stream => _stream;
+  OnChangeActionBuilder get onChange => _onChange;
 }

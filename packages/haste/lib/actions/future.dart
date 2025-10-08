@@ -36,6 +36,8 @@ class FutureAction<T> extends HasteAction<T> {
 }
 
 class FutureActionBuilder extends HasteActionBuilder {
+  const FutureActionBuilder();
+
   AsyncSnapshot<T> init<T>(
     Future<T> Function() initializer, {
     Key? key,

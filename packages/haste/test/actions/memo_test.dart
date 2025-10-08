@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haste/haste.dart';
-import '../test_builder.dart';
 
 void main() {
   group('Memo action', () {
@@ -13,10 +12,10 @@ void main() {
       int initCalls = 0;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(0);
-            value = context.memo(() {
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(0);
+            value = actions.memo(() {
               initCalls++;
               return 0;
             });
@@ -43,11 +42,10 @@ void main() {
       int initCalls = 0;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            key = context.state(null);
-
-            memo = context.memo(() {
+        HasteBuilder(
+          builder: (context, actions) {
+            key = actions.state(null);
+            memo = actions.memo(() {
               return ++initCalls;
             }, key: key.value);
 

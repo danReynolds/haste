@@ -1,9 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haste/haste.dart';
-import '../test_builder.dart';
 
 void main() {
   group('Stream action', () {
@@ -15,9 +13,9 @@ void main() {
       final controller = StreamController<int>();
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            snap = context.stream(controller.stream);
+        HasteBuilder(
+          builder: (context, actions) {
+            snap = actions.stream(controller.stream);
             return Container();
           },
         ),
@@ -61,9 +59,9 @@ void main() {
       int initCalls = 0;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            context.stream.init(() {
+        HasteBuilder(
+          builder: (context, actions) {
+            actions.stream.init(() {
               initCalls++;
               return Stream.value(2);
             });
@@ -87,9 +85,9 @@ void main() {
       final stream = Stream.value(2);
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            snap = context.stream(stream, initialData: 0);
+        HasteBuilder(
+          builder: (context, actions) {
+            snap = actions.stream(stream, initialData: 0);
             return Container();
           },
         ),
@@ -112,9 +110,9 @@ void main() {
       final controller = StreamController<int>();
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            snap = context.stream(controller.stream);
+        HasteBuilder(
+          builder: (context, actions) {
+            snap = actions.stream(controller.stream);
             return Container();
           },
         ),
@@ -153,10 +151,10 @@ void main() {
       late StateAction<Stream<int>> state;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state.init(() => Stream.value(2));
-            snap = context.stream(state.value);
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state.init(() => Stream.value(2));
+            snap = actions.stream(state.value);
             return Container();
           },
         ),
@@ -190,14 +188,14 @@ void main() {
       late StateAction<Stream<int>> state;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state.init(
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state.init(
               () => Stream.fromFuture(
                 Future.delayed(Duration(milliseconds: 100), () => 2),
               ),
             );
-            snap = context.stream(state.value);
+            snap = actions.stream(state.value);
             return Container();
           },
         ),

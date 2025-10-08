@@ -7,6 +7,8 @@ class MemoAction<T> extends HasteAction<T> {
 }
 
 class MemoActionBuilder extends HasteActionBuilder {
+  const MemoActionBuilder();
+
   T call<T>(T Function() memoizer, {Key? key}) {
     return rebuild(key, () => MemoAction(memoizer()))._value;
   }

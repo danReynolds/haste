@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:haste/haste.dart';
 import 'package:haste_computables/haste_computables.dart';
-import 'test_builder.dart';
 
 void main() {
   group('Computable action', () {
@@ -15,9 +14,9 @@ void main() {
       final computable = Computable(1);
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            value = context.compute(computable);
+        HasteBuilder(
+          builder: (context, actions) {
+            value = actions.compute(computable);
             return Container();
           },
         ),
@@ -46,10 +45,10 @@ void main() {
       int initCalls = 0;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(0);
-            value = context.compute.init(() {
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(0);
+            value = actions.compute.init(() {
               initCalls++;
               return Computable(1);
             });
@@ -75,10 +74,10 @@ void main() {
       late StateAction<Computable<int>> state;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state.init(() => Computable(1));
-            value = context.compute(state.value);
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state.init(() => Computable(1));
+            value = actions.compute(state.value);
             return Container();
           },
         ),

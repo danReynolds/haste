@@ -12,6 +12,8 @@ class DisposeAction<T> extends HasteAction<T> {
 }
 
 class DisposeActionBuilder extends HasteActionBuilder {
+  const DisposeActionBuilder();
+
   void call(void Function() dispose) {
     final action = rebuild(null, () => DisposeAction(dispose));
     action._dispose = dispose;

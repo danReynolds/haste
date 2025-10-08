@@ -1,39 +1,27 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Haste ⚡️ - Loon
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+An extension to [Haste](https://github.com/danReynolds/haste/tree/main/packages/haste) with added actions for [Computables](https://github.com/danReynolds/computables).
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+## Install
 
 ```dart
-const like = 'sample';
+flutter pub add haste_computables
 ```
 
-## Additional information
+## Actions
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+* `compute` ➡️ Subscribe to a Computable.
+
+```dart
+import 'package:haste/haste.dart';
+import 'package:haste_loon/haste_computables.dart';
+
+class MyWidget extends StatelessWidget with Haste {
+  @override
+  build(context) {
+    final value = compute(Computable(2));
+
+    return Text(value);
+  }
+}
+```

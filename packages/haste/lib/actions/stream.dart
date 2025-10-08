@@ -36,6 +36,8 @@ class StreamAction<T> extends HasteAction<T> {
 }
 
 class StreamActionBuilder extends HasteActionBuilder {
+  const StreamActionBuilder();
+
   AsyncSnapshot<T> init<T>(
     Stream<T> Function() initializer, {
     Key? key,

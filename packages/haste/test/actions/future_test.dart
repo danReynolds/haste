@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haste/haste.dart';
-import '../test_builder.dart';
 
 void main() {
   group('Future action', () {
@@ -13,9 +12,9 @@ void main() {
       final future = Future.value(2);
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            snap = context.future(future);
+        HasteBuilder(
+          builder: (context, actions) {
+            snap = actions.future(future);
             return Container();
           },
         ),
@@ -36,9 +35,9 @@ void main() {
       int initCalls = 0;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            context.future.init(() {
+        HasteBuilder(
+          builder: (context, actions) {
+            actions.future.init(() {
               initCalls++;
               return Future.value(2);
             });
@@ -61,9 +60,9 @@ void main() {
         int initCalls = 0;
 
         await tester.pumpWidget(
-          TestBuilder(
-            builder: (context) {
-              future = context.future.init(() {
+          HasteBuilder(
+            builder: (context, actions) {
+              future = actions.future.init(() {
                 initCalls++;
                 return Future.value(2);
               });
@@ -92,9 +91,9 @@ void main() {
       final future = Future.value(2);
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            snap = context.future(future, initialData: 0);
+        HasteBuilder(
+          builder: (context, actions) {
+            snap = actions.future(future, initialData: 0);
             return Container();
           },
         ),
@@ -119,9 +118,9 @@ void main() {
       });
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            snap = context.future(future);
+        HasteBuilder(
+          builder: (context, actions) {
+            snap = actions.future(future);
             return Container();
           },
         ),
@@ -142,10 +141,10 @@ void main() {
       late StateAction<Future<int>> state;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state.init(() => Future.value(2));
-            snap = context.future(state.value);
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state.init(() => Future.value(2));
+            snap = actions.future(state.value);
             return Container();
           },
         ),
@@ -179,12 +178,12 @@ void main() {
       late StateAction<Future<int>> state;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state.init(
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state.init(
               () => Future.delayed(Duration(milliseconds: 100), () => 2),
             );
-            snap = context.future(state.value);
+            snap = actions.future(state.value);
             return Container();
           },
         ),

@@ -3,6 +3,8 @@ part of '../haste.dart';
 class InitAction<T> extends HasteAction<T> {}
 
 class InitActionBuilder extends HasteActionBuilder {
+  const InitActionBuilder();
+
   void call<S>(void Function() onInit) {
     if (retrieve<InitAction>() == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

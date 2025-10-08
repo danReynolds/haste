@@ -3,6 +3,8 @@ part of '../haste.dart';
 class OnChangeAction<T> extends HasteAction<T> {}
 
 class OnChangeActionBuilder extends HasteActionBuilder {
+  const OnChangeActionBuilder();
+
   void call<S>(void Function() onChange, {required Key key}) {
     final prevAction = retrieve<OnChangeAction>();
     final nextAction = rebuild(key, () => OnChangeAction());

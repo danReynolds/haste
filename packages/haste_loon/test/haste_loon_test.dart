@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:haste/haste.dart';
 import 'package:haste_loon/haste_loon.dart';
 import 'package:loon/loon.dart';
-import 'test_builder.dart';
 
 void main() {
   group('Document action', () {
@@ -15,9 +14,9 @@ void main() {
       final doc = Loon.collection<int>('users').doc('1');
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            value = context.doc(doc);
+        HasteBuilder(
+          builder: (context, actions) {
+            value = actions.doc(doc);
             return Container();
           },
         ),
@@ -45,10 +44,10 @@ void main() {
       int initCalls = 0;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(0);
-            context.doc.init(() {
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(0);
+            actions.doc.init(() {
               initCalls++;
               return Loon.collection<int>('users').doc('1');
             });
@@ -76,10 +75,10 @@ void main() {
       final userDoc2 = Loon.collection<int>('users').doc('2');
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(userDoc);
-            value = context.doc(state.value);
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(userDoc);
+            value = actions.doc(state.value);
             return Container();
           },
         ),
@@ -117,9 +116,9 @@ void main() {
       final userDoc = collection.doc('1');
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            value = context.query(Loon.collection<int>('users'));
+        HasteBuilder(
+          builder: (context, actions) {
+            value = actions.query(Loon.collection<int>('users'));
             return Container();
           },
         ),
@@ -147,10 +146,10 @@ void main() {
       int initCalls = 0;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(0);
-            context.query.init(() {
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(0);
+            actions.query.init(() {
               initCalls++;
               return Loon.collection<int>('users');
             });
@@ -179,10 +178,10 @@ void main() {
       final friendDoc = friends.doc('1');
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(users);
-            value = context.query(state.value);
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(users);
+            value = actions.query(state.value);
             return Container();
           },
         ),

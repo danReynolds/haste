@@ -1,15 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haste/haste.dart';
-import '../test_builder.dart';
-
-class Disposable {
-  bool disposed = false;
-
-  void dispose() {
-    disposed = true;
-  }
-}
 
 void main() {
   group('OnChange action', () {
@@ -20,10 +11,10 @@ void main() {
       late StateAction<int> state;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(0);
-            context.onChange(() {
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(0);
+            actions.onChange(() {
               changeCount++;
             }, key: ValueKey(state.value));
             return Container();

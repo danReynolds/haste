@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haste/haste.dart';
-import '../test_builder.dart';
 
 class Disposable {
   bool disposed = false;
@@ -20,10 +19,10 @@ void main() {
       late StateAction<int> state;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(0);
-            context.dispose(() => disposed = true);
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(0);
+            actions.dispose(() => disposed = true);
             return Container();
           },
         ),
@@ -51,10 +50,10 @@ void main() {
       late StateAction<Disposable> state;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(disposable1);
-            context.dispose(() => state.value.dispose());
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(disposable1);
+            actions.dispose(() => state.value.dispose());
             return Container();
           },
         ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haste/haste.dart';
-import '../test_builder.dart';
 
 void main() {
   group('State action', () {
@@ -12,9 +11,9 @@ void main() {
       late StateAction<int> state;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state(0);
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state(0);
             value = state.value;
             return Container();
           },
@@ -37,9 +36,9 @@ void main() {
       int initCalls = 0;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            state = context.state.init(() {
+        HasteBuilder(
+          builder: (context, actions) {
+            state = actions.state.init(() {
               initCalls++;
               return 0;
             });
@@ -67,11 +66,11 @@ void main() {
       int initCalls = 0;
 
       await tester.pumpWidget(
-        TestBuilder(
-          builder: (context) {
-            key = context.state(null);
+        HasteBuilder(
+          builder: (context, actions) {
+            key = actions.state(null);
 
-            state = context.state.init(() {
+            state = actions.state.init(() {
               initCalls++;
               return 0;
             }, key: key.value);
