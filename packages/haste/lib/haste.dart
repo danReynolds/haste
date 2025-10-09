@@ -10,6 +10,7 @@ part 'actions/dispose.dart';
 part 'actions/future.dart';
 part 'actions/stream.dart';
 part 'actions/on_change.dart';
+part 'actions/previous.dart';
 
 abstract class HasteAction<T> {
   late final Key? _key;
@@ -27,8 +28,11 @@ abstract class HasteActionBuilder<T> {
 
   HasteElement get _element => HasteElement._current!;
 
+  /// Returns the [HasteAction] of type [S] if it exists at the current action index being evaluated.
   S? retrieve<S extends HasteAction>() => _element._retrieveAction<S>();
 
+  /// Builds the [HasteAction] of type [S] at the current action index using [actionBuilder]. If an existing action of type [S]
+  /// exists at the current index, then rebuilding is skipped conditional on a matching [key].
   S rebuild<S extends HasteAction>(Key? key, S Function() actionBuilder) =>
       _element._rebuildAction(key, actionBuilder);
 }
@@ -111,23 +115,16 @@ class HasteElement extends StatelessElement {
   }
 }
 
-const _init = InitActionBuilder();
-const _state = StateActionBuilder();
-const _memo = MemoActionBuilder();
-const _dispose = DisposeActionBuilder();
-const _future = FutureActionBuilder();
-const _stream = StreamActionBuilder();
-const _onChange = OnChangeActionBuilder();
-
 mixin Haste on StatelessWidget {
   @override
   HasteElement createElement() => HasteElement(this);
 
-  InitActionBuilder get init => _init;
-  StateActionBuilder get state => _state;
-  MemoActionBuilder get memo => _memo;
-  DisposeActionBuilder get dispose => _dispose;
-  FutureActionBuilder get future => _future;
-  StreamActionBuilder get stream => _stream;
-  OnChangeActionBuilder get onChange => _onChange;
+  InitActionBuilder get init => const InitActionBuilder();
+  StateActionBuilder get state => const StateActionBuilder();
+  MemoActionBuilder get memo => const MemoActionBuilder();
+  DisposeActionBuilder get dispose => const DisposeActionBuilder();
+  FutureActionBuilder get future => const FutureActionBuilder();
+  StreamActionBuilder get stream => const StreamActionBuilder();
+  OnChangeActionBuilder get onChange => const OnChangeActionBuilder();
+  PreviousActionBuilder get previous => const PreviousActionBuilder();
 }

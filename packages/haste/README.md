@@ -58,7 +58,7 @@ class MyForm extends StatelessWidget with Haste {
 
     return Column(
       children: [
-        TextField(controller: _controller, hintText: 'Name'),
+        TextField(controller: controller, hintText: 'Name'),
         AgePicker(initialValue: 0, onPick: (newAge) => setAge(newAge)),
         TextButton(
           child: Text('Submit'),
@@ -79,6 +79,7 @@ class MyForm extends StatelessWidget with Haste {
 * `stream` ➡️ Subscribe to a stream.
 * `onChange` ➡️ Run some code when a value changes.
 * `dispose` ➡️ Run some code when a `StatelessWidget` is disposed.
+* `previous` ➡️ Return the previous value from the last build.
 
 ## Install
 
@@ -94,9 +95,61 @@ flutter pub add haste
 
 ## Extensions
 
-Need actions for a particular library? You can explore extensions below:
+Want extended actions for a particular library? You can find some extension packages below:
 
 * [Computables](https://pub.dev/packages/haste_computables) - A reactive state primitive library. [Extension](../haste_loon/README.md).
 * [Loon](https://pub.dev/packages/haste_loon) - Loon is a reactive document data store for Flutter. [Extension](../haste_loon/README.md).
 
+## Creating extensions
 
+Need an action you don't see yet? Create your own!
+
+Let's take the example of creating an extended action called `counter` that periodically increments a value and rebuilds the widget:
+
+```dart
+class MyWidget extends StatelessWidget with Haste {
+  @override
+  build(context) {
+    // Increment a counter beginning at 0 every 2 seconds.
+    final count = counter(0, Duration(seconds: 2));
+    return Text("Count: $count"); // Count: 0, Count: 1, Count: 2...
+  }
+}
+```
+
+And here is how you would implement it:
+
+```dart
+class CounterAction extends HasteAction<int> {
+  int _count;
+  late final Timer _timer;
+
+  CounterAction(this._count, Duration duration) {
+    _timer = Timer.periodic(duration, (_) {
+      _count++;
+      markNeedsBuild();
+    });
+  }
+
+  @override
+  dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+}
+
+class CounterActionBuilder extends HasteActionBuilder {
+  const CounterActionBuilder();
+
+  int call(int initialValue, Duration duration, {Key? key}) {
+    // A new counter action is built whenever the provided key changes.
+    final action = rebuild(key, () => CounterAction(initialValue, duration));
+    return action._count;
+  }
+}
+
+// Finally, extend the set of existing haste actions with the counter extension.
+extension HasteCounterAction on Haste {
+  CounterActionBuilder get counter => const CounterActionBuilder();
+}
+```

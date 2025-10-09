@@ -21,7 +21,7 @@ void main() {
       await tester.pumpWidget(
         HasteBuilder(
           builder: (context, actions) {
-            updater = actions.state(0).$2;
+            (_, updater) = actions.state(0);
             actions.dispose(() => disposed = true);
             return Container();
           },
